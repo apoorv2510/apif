@@ -3,7 +3,7 @@ name: Deploy to Elastic Beanstalk
 on:
   push:
     branches:
-      - main  # or your deployment branch
+      - main
 
 jobs:
   deploy:
@@ -23,6 +23,15 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+    - name: 🧪 Check for required secrets (debugging)
+      run: |
+        echo "Checking for secrets..."
+        if [ -z "${{ secrets.AWS_REGION }}" ]; then echo "❌ AWS_REGION is missing!"; else echo "✅ AWS_REGION found"; fi
+        if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then echo "❌ AWS_ACCESS_KEY_ID is missing!"; else echo "✅ AWS_ACCESS_KEY_ID found"; fi
+        if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then echo "❌ AWS_SECRET_ACCESS_KEY is missing!"; else echo "✅ AWS_SECRET_ACCESS_KEY found"; fi
+        if [ -z "${{ secrets.EB_APP_NAME }}" ]; then echo "❌ EB_APP_NAME is missing!"; else echo "✅ EB_APP_NAME found"; fi
+        if [ -z "${{ secrets.EB_ENV_NAME }}" ]; then echo "❌ EB_ENV_NAME is missing!"; else echo "✅ EB_ENV_NAME found"; fi
+
     - name: 📁 Zip the application
       run: zip -r app.zip . -x '*.git*'
 
@@ -33,6 +42,6 @@ jobs:
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         application_name: ${{ secrets.EB_APP_NAME }}
         environment_name: ${{ secrets.EB_ENV_NAME }}
-        region: ${{ secrets.AWS_REGION }}  # ✅ Required to avoid the Region error
+        region: ${{ secrets.AWS_REGION }}
         version_label: ${{ github.sha }}
         deployment_package: app.zip
