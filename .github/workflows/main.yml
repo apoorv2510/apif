@@ -37,6 +37,9 @@ jobs:
       run: |
         zip -r app.zip . -x ".git/*"
 
+    - name: ⏱️ Generate unique version label
+      run: echo "VERSION_LABEL=v-$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+
     - name: 🚀 Deploy to Elastic Beanstalk using session token
       uses: einaregilsson/beanstalk-deploy@v20
       with:
@@ -46,5 +49,5 @@ jobs:
         region: ${{ secrets.AWS_REGION }}
         application_name: ${{ secrets.EB_APP_NAME }}
         environment_name: ${{ secrets.EB_ENV_NAME }}
-        version_label: ${{ github.sha }}
+        version_label: ${{ env.VERSION_LABEL }}
         deployment_package: app.zip
