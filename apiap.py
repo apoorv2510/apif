@@ -1,33 +1,41 @@
-import os
-import json
 from flask import Blueprint, jsonify, make_response
 from flasgger import swag_from
 
 api_bp = Blueprint("api", __name__)
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-JSON_FILE = os.path.join(BASE_DIR, "players_large.json")
-
-# Debug print: check path
-print(f"🔍 Looking for JSON at: {JSON_FILE}")
-
-# Load players data
-players = []
-
-if not os.path.exists(JSON_FILE):
-    print(f"⚠️ {JSON_FILE} not found! Creating empty file.")
-    with open(JSON_FILE, "w") as f:
-        json.dump([], f)
-else:
-    try:
-        with open(JSON_FILE, "r") as f:
-            players = json.load(f)
-            if not isinstance(players, list):
-                raise ValueError("Expected a list of players in JSON file.")
-            print(f"✅ Loaded {len(players)} players from JSON.")
-    except Exception as e:
-        print(f"❌ Error loading players JSON: {e}")
-        players = []
+# 🔗 Hardcoded JSON data
+players = [
+    {"id": 1, "name": "Lionel Messi", "team": "Inter Miami", "nationality": "Argentina", "position": "Forward", "age": 36},
+    {"id": 2, "name": "Cristiano Ronaldo", "team": "Al-Nassr", "nationality": "Portugal", "position": "Forward", "age": 39},
+    {"id": 3, "name": "Neymar Jr", "team": "Al-Hilal", "nationality": "Brazil", "position": "Forward", "age": 32},
+    {"id": 4, "name": "Kylian Mbappe", "team": "Paris Saint-Germain", "nationality": "France", "position": "Forward", "age": 25},
+    {"id": 5, "name": "Erling Haaland", "team": "Manchester City", "nationality": "Norway", "position": "Forward", "age": 23},
+    {"id": 6, "name": "Kevin De Bruyne", "team": "Manchester City", "nationality": "Belgium", "position": "Midfielder", "age": 33},
+    {"id": 7, "name": "Luka Modric", "team": "Real Madrid", "nationality": "Croatia", "position": "Midfielder", "age": 38},
+    {"id": 8, "name": "Virgil van Dijk", "team": "Liverpool", "nationality": "Netherlands", "position": "Defender", "age": 32},
+    {"id": 9, "name": "Mohamed Salah", "team": "Liverpool", "nationality": "Egypt", "position": "Forward", "age": 31},
+    {"id": 10, "name": "Robert Lewandowski", "team": "Barcelona", "nationality": "Poland", "position": "Forward", "age": 35},
+    {"id": 11, "name": "Harry Kane", "team": "Bayern Munich", "nationality": "England", "position": "Forward", "age": 30},
+    {"id": 12, "name": "Bruno Fernandes", "team": "Manchester United", "nationality": "Portugal", "position": "Midfielder", "age": 29},
+    {"id": 13, "name": "Marcus Rashford", "team": "Manchester United", "nationality": "England", "position": "Forward", "age": 26},
+    {"id": 14, "name": "Antoine Griezmann", "team": "Atletico Madrid", "nationality": "France", "position": "Forward", "age": 32},
+    {"id": 15, "name": "Jude Bellingham", "team": "Real Madrid", "nationality": "England", "position": "Midfielder", "age": 20},
+    {"id": 16, "name": "Vinicius Jr", "team": "Real Madrid", "nationality": "Brazil", "position": "Forward", "age": 23},
+    {"id": 17, "name": "Rodri", "team": "Manchester City", "nationality": "Spain", "position": "Midfielder", "age": 27},
+    {"id": 18, "name": "Pedri", "team": "Barcelona", "nationality": "Spain", "position": "Midfielder", "age": 21},
+    {"id": 19, "name": "Joao Cancelo", "team": "Barcelona", "nationality": "Portugal", "position": "Defender", "age": 29},
+    {"id": 20, "name": "Gavi", "team": "Barcelona", "nationality": "Spain", "position": "Midfielder", "age": 19},
+    {"id": 21, "name": "Alisson Becker", "team": "Liverpool", "nationality": "Brazil", "position": "Goalkeeper", "age": 31},
+    {"id": 22, "name": "Marc-Andre ter Stegen", "team": "Barcelona", "nationality": "Germany", "position": "Goalkeeper", "age": 31},
+    {"id": 23, "name": "Thibaut Courtois", "team": "Real Madrid", "nationality": "Belgium", "position": "Goalkeeper", "age": 32},
+    {"id": 24, "name": "Rafael Leao", "team": "AC Milan", "nationality": "Portugal", "position": "Forward", "age": 24},
+    {"id": 25, "name": "Bernardo Silva", "team": "Manchester City", "nationality": "Portugal", "position": "Midfielder", "age": 29},
+    {"id": 26, "name": "Joshua Kimmich", "team": "Bayern Munich", "nationality": "Germany", "position": "Midfielder", "age": 29},
+    {"id": 27, "name": "Federico Valverde", "team": "Real Madrid", "nationality": "Uruguay", "position": "Midfielder", "age": 25},
+    {"id": 28, "name": "Sadio Mane", "team": "Al-Nassr", "nationality": "Senegal", "position": "Forward", "age": 32},
+    {"id": 29, "name": "Serge Gnabry", "team": "Bayern Munich", "nationality": "Germany", "position": "Forward", "age": 28},
+    {"id": 30, "name": "Son Heung-min", "team": "Tottenham Hotspur", "nationality": "South Korea", "position": "Forward", "age": 31}
+]
 
 # ✅ API: Get All Players
 @api_bp.route('/players', methods=['GET'])
@@ -36,7 +44,7 @@ else:
     'tags': ['Players']
 })
 def get_players():
-    print(f"📤 Returning {len(players)} players")
+    print(f"📤 Returning {len(players)} players from in-memory data")
     response = make_response(jsonify(players))
     response.headers['Content-Type'] = 'application/json'
     return response
