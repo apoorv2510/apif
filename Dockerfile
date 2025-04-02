@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy all files to container
 COPY . /app
 
-# ✅ Ensure players_large.json is copied (this is redundant only if already in the project root)
+# ✅ Ensure players_large.json is copied to(this is redundant only if already in the project root)
 COPY players_large.json /app/players_large.json
 
 # Install dependencies
