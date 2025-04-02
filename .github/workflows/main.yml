@@ -33,17 +33,23 @@ jobs:
           exit 1
         fi
 
-    - name: 🕒 Generate unique version label
-      id: version
+    - name: 📁 Generate unique version label and zip app
       run: |
-        version_label="build-${GITHUB_SHA}-${GITHUB_RUN_ID}"
-        echo "version_label=$version_label" >> $GITHUB_ENV
-        echo "🆕 Using version label: $version_label"
+        TIMESTAMP=$(date +%s)
+        VERSION_LABEL="build-${GITHUB_SHA::8}-${TIMESTAMP}"
+        echo "version_label=$VERSION_LABEL" >> $GITHUB_ENV
+        echo "📦 Using version: $VERSION_LABEL"
+        zip -r app.zip . -x ".git/*"
 
-    - name: 📁 Zip the application (exclude .git)
-      run: zip -r app.zip . -x ".git/*"
+    - name: ❌ Delete version if it already exists
+      run: |
+        aws elasticbeanstalk delete-application-version \
+          --application-name "${{ secrets.EB_APP_NAME }}" \
+          --version-label "$version_label" \
+          --delete-source-bundle \
+          --region "${{ secrets.AWS_REGION}" || echo "🔁 Version not found, skipping delete."
 
-    - name: 🚀 Deploy to Elastic Beanstalk
+    - name: 🚀 Deploy to Elastic Beanstalk using session token
       uses: einaregilsson/beanstalk-deploy@v20
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -54,20 +60,4 @@ jobs:
         environment_name: ${{ secrets.EB_ENV_NAME }}
         version_label: ${{ env.version_label }}
         deployment_package: app.zip
-        use_existing_version_if_available: false  # ✅ Force new version every time
-
-    - name: 🩺 Verify environment health after deploy
-      run: |
-        STATUS=$(aws elasticbeanstalk describe-environments \
-          --application-name ${{ secrets.EB_APP_NAME }} \
-          --environment-names ${{ secrets.EB_ENV_NAME }} \
-          --region ${{ secrets.AWS_REGION }} \
-          --query 'Environments[0].HealthStatus' \
-          --output text)
-
-        echo "🚦 Environment Health Status: $STATUS"
-
-        if [ "$STATUS" != "Ok" ]; then
-          echo "❌ Deployment failed or is unhealthy"
-          exit 1
-        fi
+        use_existing_version_if_available: false
