@@ -28,7 +28,8 @@ else:
             print(f"❌ Failed to load players: {e}")
             players = []
 
-@api_bp.route('/api/players', methods=['GET'])
+# ✅ API: Get All Players
+@api_bp.route('/players', methods=['GET'])
 @swag_from({
     'responses': {200: {'description': 'Returns a list of players'}},
     'tags': ['Players']
