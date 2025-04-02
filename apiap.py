@@ -1,9 +1,10 @@
-from flask import Blueprint, jsonify, make_response
+from flask import Blueprint, jsonify
 from flasgger import swag_from
 
+# ✅ Create Blueprint
 api_bp = Blueprint("api", __name__)
 
-# 🔗 Hardcoded JSON data
+# ✅ Embedded Player Data (no file reading)
 players = [
     {"id": 1, "name": "Lionel Messi", "team": "Inter Miami", "nationality": "Argentina", "position": "Forward", "age": 36},
     {"id": 2, "name": "Cristiano Ronaldo", "team": "Al-Nassr", "nationality": "Portugal", "position": "Forward", "age": 39},
@@ -35,7 +36,6 @@ players = [
     {"id": 28, "name": "Sadio Mane", "team": "Al-Nassr", "nationality": "Senegal", "position": "Forward", "age": 32},
     {"id": 29, "name": "Serge Gnabry", "team": "Bayern Munich", "nationality": "Germany", "position": "Forward", "age": 28},
     {"id": 30, "name": "Son Heung-min", "team": "Tottenham Hotspur", "nationality": "South Korea", "position": "Forward", "age": 31}
-    {"id": 31, "name": "Apoorv", "team": "Barcelona", "nationality": "India", "position": "Forward", "age": 28}
 ]
 
 # ✅ API: Get All Players
@@ -45,7 +45,4 @@ players = [
     'tags': ['Players']
 })
 def get_players():
-    print(f"📤 Returning {len(players)} players from in-memory data")
-    response = make_response(jsonify(players))
-    response.headers['Content-Type'] = 'application/json'
-    return response
+    return jsonify(players)
