@@ -67,4 +67,4 @@ def home():
     return "<h1>Sports API is Running 🚀</h1><p>Use <b>/api/players</b> to access player data.</p>"
 
 if __name__ == '__main__':
-    application.run(debug=True, host="0.0.0.0", port=5000)
+    application.run(debug=True, host="0.0.0.0", port=8080)
