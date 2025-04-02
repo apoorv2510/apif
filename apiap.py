@@ -6,8 +6,9 @@ from flasgger import swag_from
 # ✅ Create Blueprint
 api_bp = Blueprint("api", __name__)
 
-# ✅ File path for dataset
-JSON_FILE = "players_large.json"
+# ✅ File path for dataset (absolute path to ensure consistency)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+JSON_FILE = os.path.join(BASE_DIR, "players_large.json")
 
 # ✅ Ensure JSON file exists
 if not os.path.exists(JSON_FILE):
