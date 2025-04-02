@@ -35,10 +35,10 @@ jobs:
 
     - name: 📁 Zip the application (include everything except .git folder)
       run: |
+        timestamp=$(date +%s)
+        echo "📦 Using timestamp for version: $timestamp"
+        echo "version_label=$timestamp" >> $GITHUB_ENV
         zip -r app.zip . -x ".git/*"
-
-    - name: ⏱️ Generate unique version label
-      run: echo "VERSION_LABEL=v-$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
 
     - name: 🚀 Deploy to Elastic Beanstalk using session token
       uses: einaregilsson/beanstalk-deploy@v20
@@ -49,5 +49,6 @@ jobs:
         region: ${{ secrets.AWS_REGION }}
         application_name: ${{ secrets.EB_APP_NAME }}
         environment_name: ${{ secrets.EB_ENV_NAME }}
-        version_label: ${{ env.VERSION_LABEL }}
+        version_label: ${{ env.version_label }}
         deployment_package: app.zip
+        recreate_environment: true  # 🔁 This will recreate instances to force consistency
