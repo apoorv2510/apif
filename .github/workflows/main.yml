@@ -25,9 +25,12 @@ jobs:
 
     - name: 🧪 Check for required secrets
       run: |
-        for secret in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN EB_APP_NAME EB_ENV_NAME; do
-          if [ -z "${{ secrets[$secret] }}" ]; then echo "❌ $secret is missing!"; else echo "✅ $secret found"; fi
-        done
+        echo "Checking required secrets..."
+        if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then echo "❌ AWS_ACCESS_KEY_ID is missing"; else echo "✅ AWS_ACCESS_KEY_ID found"; fi
+        if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then echo "❌ AWS_SECRET_ACCESS_KEY is missing"; else echo "✅ AWS_SECRET_ACCESS_KEY found"; fi
+        if [ -z "${{ secrets.AWS_SESSION_TOKEN }}" ]; then echo "❌ AWS_SESSION_TOKEN is missing"; else echo "✅ AWS_SESSION_TOKEN found"; fi
+        if [ -z "${{ secrets.EB_APP_NAME }}" ]; then echo "❌ EB_APP_NAME is missing"; else echo "✅ EB_APP_NAME found"; fi
+        if [ -z "${{ secrets.EB_ENV_NAME }}" ]; then echo "❌ EB_ENV_NAME is missing"; else echo "✅ EB_ENV_NAME found"; fi
 
     - name: 📁 Zip the application
       run: zip -r app.zip . -x '*.git*'
@@ -37,7 +40,7 @@ jobs:
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws_session_token: ${{ secrets.AWS_SESSION_TOKEN }}  # ✅ Add this line
+        aws_session_token: ${{ secrets.AWS_SESSION_TOKEN }}
         application_name: ${{ secrets.EB_APP_NAME }}
         environment_name: ${{ secrets.EB_ENV_NAME }}
         version_label: ${{ github.sha }}
