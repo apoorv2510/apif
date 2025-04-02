@@ -35,7 +35,7 @@ players = [
     {"id": 28, "name": "Sadio Mane", "team": "Al-Nassr", "nationality": "Senegal", "position": "Forward", "age": 32},
     {"id": 29, "name": "Serge Gnabry", "team": "Bayern Munich", "nationality": "Germany", "position": "Forward", "age": 28},
     {"id": 30, "name": "Son Heung-min", "team": "Tottenham Hotspur", "nationality": "South Korea", "position": "Forward", "age": 31}
-    {"id": 31, "name": "Apoorv", "team": "Barcelona", "nationality": "India", "position": "Forward", "age": 25}
+    {"id": 31, "name": "Apoorv", "team": "Barcelona", "nationality": "India", "position": "Forward", "age": 27}
 ]
 
 # ✅ API: Get All Players
