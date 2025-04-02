@@ -23,9 +23,19 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-   - name: 📁 Zip the application (including JSON)
-  run: zip -r app.zip . -x '.git/*'
+    - name: 🔍 Verify players_large.json exists
+      run: |
+        if [ -f players_large.json ]; then
+          echo "✅ players_large.json found"
+          cat players_large.json | head -n 5
+        else
+          echo "❌ players_large.json is missing!"
+          exit 1
+        fi
 
+    - name: 📁 Zip the application (include everything except .git folder)
+      run: |
+        zip -r app.zip . -x ".git/*"
 
     - name: 🚀 Deploy to Elastic Beanstalk using session token
       uses: einaregilsson/beanstalk-deploy@v20
@@ -33,7 +43,7 @@ jobs:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws_session_token: ${{ secrets.AWS_SESSION_TOKEN }}
-        region: ${{ secrets.AWS_REGION }} # ✅ Region is still required
+        region: ${{ secrets.AWS_REGION }}
         application_name: ${{ secrets.EB_APP_NAME }}
         environment_name: ${{ secrets.EB_ENV_NAME }}
         version_label: ${{ github.sha }}
