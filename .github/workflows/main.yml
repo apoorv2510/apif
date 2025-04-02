@@ -49,6 +49,7 @@ jobs:
         region: ${{ secrets.AWS_REGION }}
         application_name: ${{ secrets.EB_APP_NAME }}
         environment_name: ${{ secrets.EB_ENV_NAME }}
-        version_label: ${{ env.version_label }}
+        version_label: ${{ github.sha }}
         deployment_package: app.zip
-        recreate_environment: true  # 🔁 This will recreate instances to force consistency
+        use_existing_version_if_available: true   # ✅ Prevent version conflict errors
+
