@@ -23,25 +23,22 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: 🧪 Check for required secrets (debugging)
+    - name: 🧪 Check for required secrets
       run: |
-        echo "Checking for secrets..."
-        if [ -z "${{ secrets.AWS_REGION }}" ]; then echo "❌ AWS_REGION is missing!"; else echo "✅ AWS_REGION found"; fi
-        if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then echo "❌ AWS_ACCESS_KEY_ID is missing!"; else echo "✅ AWS_ACCESS_KEY_ID found"; fi
-        if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then echo "❌ AWS_SECRET_ACCESS_KEY is missing!"; else echo "✅ AWS_SECRET_ACCESS_KEY found"; fi
-        if [ -z "${{ secrets.EB_APP_NAME }}" ]; then echo "❌ EB_APP_NAME is missing!"; else echo "✅ EB_APP_NAME found"; fi
-        if [ -z "${{ secrets.EB_ENV_NAME }}" ]; then echo "❌ EB_ENV_NAME is missing!"; else echo "✅ EB_ENV_NAME found"; fi
+        for secret in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN EB_APP_NAME EB_ENV_NAME; do
+          if [ -z "${{ secrets[$secret] }}" ]; then echo "❌ $secret is missing!"; else echo "✅ $secret found"; fi
+        done
 
     - name: 📁 Zip the application
       run: zip -r app.zip . -x '*.git*'
 
-    - name: 🚀 Deploy to Elastic Beanstalk
+    - name: 🚀 Deploy to Elastic Beanstalk using session token
       uses: einaregilsson/beanstalk-deploy@v20
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws_session_token: ${{ secrets.AWS_SESSION_TOKEN }}  # ✅ Add this line
         application_name: ${{ secrets.EB_APP_NAME }}
         environment_name: ${{ secrets.EB_ENV_NAME }}
-        region: ${{ secrets.AWS_REGION }}
         version_label: ${{ github.sha }}
         deployment_package: app.zip
