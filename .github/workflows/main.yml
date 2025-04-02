@@ -33,14 +33,17 @@ jobs:
           exit 1
         fi
 
-    - name: 📁 Zip the application (include everything except .git folder)
+    - name: 🕒 Generate unique version label
+      id: version
       run: |
-        timestamp=$(date +%s)
-        echo "📦 Using timestamp for version: $timestamp"
-        echo "version_label=$timestamp" >> $GITHUB_ENV
-        zip -r app.zip . -x ".git/*"
+        version_label="build-${GITHUB_SHA}-${GITHUB_RUN_ID}"
+        echo "version_label=$version_label" >> $GITHUB_ENV
+        echo "🆕 Using version label: $version_label"
 
-    - name: 🚀 Deploy to Elastic Beanstalk using session token
+    - name: 📁 Zip the application (exclude .git)
+      run: zip -r app.zip . -x ".git/*"
+
+    - name: 🚀 Deploy to Elastic Beanstalk
       uses: einaregilsson/beanstalk-deploy@v20
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -49,7 +52,22 @@ jobs:
         region: ${{ secrets.AWS_REGION }}
         application_name: ${{ secrets.EB_APP_NAME }}
         environment_name: ${{ secrets.EB_ENV_NAME }}
-        version_label: ${{ github.sha }}
+        version_label: ${{ env.version_label }}
         deployment_package: app.zip
-        use_existing_version_if_available: true   # ✅ Prevent version conflict errors
+        use_existing_version_if_available: false  # ✅ Force new version every time
 
+    - name: 🩺 Verify environment health after deploy
+      run: |
+        STATUS=$(aws elasticbeanstalk describe-environments \
+          --application-name ${{ secrets.EB_APP_NAME }} \
+          --environment-names ${{ secrets.EB_ENV_NAME }} \
+          --region ${{ secrets.AWS_REGION }} \
+          --query 'Environments[0].HealthStatus' \
+          --output text)
+
+        echo "🚦 Environment Health Status: $STATUS"
+
+        if [ "$STATUS" != "Ok" ]; then
+          echo "❌ Deployment failed or is unhealthy"
+          exit 1
+        fi
