@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, make_response
 from flasgger import swag_from
 
 api_bp = Blueprint("api", __name__)
@@ -11,22 +11,23 @@ JSON_FILE = os.path.join(BASE_DIR, "players_large.json")
 # Debug print: check path
 print(f"🔍 Looking for JSON at: {JSON_FILE}")
 
-# Ensure JSON exists
+# Load players data
+players = []
+
 if not os.path.exists(JSON_FILE):
     print(f"⚠️ {JSON_FILE} not found! Creating empty file.")
     with open(JSON_FILE, "w") as f:
         json.dump([], f)
-    players = []
 else:
-    with open(JSON_FILE, "r") as f:
-        try:
+    try:
+        with open(JSON_FILE, "r") as f:
             players = json.load(f)
             if not isinstance(players, list):
-                raise ValueError("Expected list in JSON")
-            print(f"✅ Loaded {len(players)} players")
-        except Exception as e:
-            print(f"❌ Failed to load players: {e}")
-            players = []
+                raise ValueError("Expected a list of players in JSON file.")
+            print(f"✅ Loaded {len(players)} players from JSON.")
+    except Exception as e:
+        print(f"❌ Error loading players JSON: {e}")
+        players = []
 
 # ✅ API: Get All Players
 @api_bp.route('/players', methods=['GET'])
@@ -35,4 +36,7 @@ else:
     'tags': ['Players']
 })
 def get_players():
-    return jsonify(players)
+    print(f"📤 Returning {len(players)} players")
+    response = make_response(jsonify(players))
+    response.headers['Content-Type'] = 'application/json'
+    return response
