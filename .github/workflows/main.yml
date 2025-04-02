@@ -47,7 +47,7 @@ jobs:
           --application-name "${{ secrets.EB_APP_NAME }}" \
           --version-label "$version_label" \
           --delete-source-bundle \
-          --region "${{ secrets.AWS_REGION}" || echo "🔁 Version not found, skipping delete."
+          --region "${{ secrets.AWS_REGION }}" || echo "🔁 Version not found, skipping delete."
 
     - name: 🚀 Deploy to Elastic Beanstalk using session token
       uses: einaregilsson/beanstalk-deploy@v20
