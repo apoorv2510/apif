@@ -33,23 +33,20 @@ jobs:
           exit 1
         fi
 
-    - name: 📁 Generate unique version label and zip app
+    - name: 🐳 Build Docker image with unique tag
       run: |
         TIMESTAMP=$(date +%s)
-        VERSION_LABEL="build-${GITHUB_SHA::8}-${TIMESTAMP}"
-        echo "version_label=$VERSION_LABEL" >> $GITHUB_ENV
-        echo "📦 Using version: $VERSION_LABEL"
+        IMAGE_TAG="myapp:${TIMESTAMP}"
+        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+        docker build -t $IMAGE_TAG .
+
+    - name: 📁 Zip the application for deployment
+      run: |
+        VERSION="build-${GITHUB_SHA::7}-$RANDOM"
+        echo "version_label=$VERSION" >> $GITHUB_ENV
         zip -r app.zip . -x ".git/*"
 
-    - name: ❌ Delete version if it already exists
-      run: |
-        aws elasticbeanstalk delete-application-version \
-          --application-name "${{ secrets.EB_APP_NAME }}" \
-          --version-label "$version_label" \
-          --delete-source-bundle \
-          --region "${{ secrets.AWS_REGION }}" || echo "🔁 Version not found, skipping delete."
-
-    - name: 🚀 Deploy to Elastic Beanstalk using session token
+    - name: 🚀 Deploy to Elastic Beanstalk
       uses: einaregilsson/beanstalk-deploy@v20
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -60,4 +57,3 @@ jobs:
         environment_name: ${{ secrets.EB_ENV_NAME }}
         version_label: ${{ env.version_label }}
         deployment_package: app.zip
-        use_existing_version_if_available: false
